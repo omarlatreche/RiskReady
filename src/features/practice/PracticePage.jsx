@@ -45,6 +45,9 @@ export default function PracticePage() {
         {chapters.map((ch, i) => {
           const stats = chapterStats[ch.id]
           const accuracy = stats?.percentage ?? null
+          const totalAvailable = questionCounts[ch.id] || 0
+          const attempted = stats?.total ?? 0
+          const coverage = totalAvailable > 0 ? Math.round((attempted / totalAvailable) * 100) : 0
 
           return (
             <button
@@ -62,7 +65,7 @@ export default function PracticePage() {
                     'text-xs font-semibold tabular-nums px-2 py-0.5 rounded',
                     accuracy >= 65 ? 'bg-success-50 dark:bg-success-500/10 text-success-600 dark:text-success-500' : 'bg-danger-50 dark:bg-danger-500/10 text-danger-600 dark:text-danger-500'
                   )}>
-                    {stats.correct}/{stats.total} ({accuracy}%)
+                    {stats.correct}/{stats.total} correct ({accuracy}%)
                   </span>
                 )}
               </div>
@@ -70,19 +73,18 @@ export default function PracticePage() {
                 {ch.title}
               </h3>
               <p className="text-xs text-surface-500 mt-1">
-                {questionCounts[ch.id] || 0} questions &middot; {ch.subsections.length} learning outcomes
+                {totalAvailable} questions &middot; {ch.subsections.length} learning outcomes
               </p>
-              {stats && (
-                <div className="mt-3 w-full h-1.5 bg-surface-100 dark:bg-surface-800 rounded-full overflow-hidden">
-                  <div
-                    className={cn(
-                      'h-full rounded-full transition-all duration-500 ease-out',
-                      accuracy >= 65 ? 'bg-success-500' : 'bg-danger-500'
-                    )}
-                    style={{ width: `${accuracy}%` }}
-                  />
-                </div>
-              )}
+              {/* Progress bar shows coverage (attempted/available), not accuracy */}
+              <div className="mt-3 w-full h-1.5 bg-surface-100 dark:bg-surface-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-primary-500 transition-all duration-500 ease-out"
+                  style={{ width: `${coverage}%` }}
+                />
+              </div>
+              <p className="text-[10px] text-surface-400 mt-1 tabular-nums">
+                {attempted}/{totalAvailable} attempted
+              </p>
             </button>
           )
         })}
