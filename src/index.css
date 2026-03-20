@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+@theme {
+  /* Primary — Deep Teal */
+  --color-primary-50: #effefa;
+  --color-primary-100: #d0faf2;
+  --color-primary-200: #a3f3e3;
+  --color-primary-300: #6ee7c6;
+  --color-primary-400: #36d1a0;
+  --color-primary-500: #14b88a;
+  --color-primary-600: #0d9470;
+  --color-primary-700: #0e7760;
+  --color-primary-800: #115e4e;
+  --color-primary-900: #124d42;
+
+  /* Surface — Warm Slate */
+  --color-surface-50: #f8f7f5;
+  --color-surface-100: #f0eeeb;
+  --color-surface-200: #e2dfd9;
+  --color-surface-300: #c8c4bc;
+  --color-surface-400: #a8a29d;
+  --color-surface-500: #8a847c;
+  --color-surface-600: #6b655c;
+  --color-surface-700: #4a453e;
+  --color-surface-800: #2c2824;
+  --color-surface-900: #1c1917;
+  --color-surface-950: #120f0d;
+
+  /* Accent — Warm Gold */
+  --color-accent-400: #e5c07b;
+  --color-accent-500: #d4a853;
+
+  /* Semantic */
+  --color-success-50: #f0fdf4;
+  --color-success-500: #16a34a;
+  --color-success-600: #15803d;
+  --color-danger-50: #fef2f2;
+  --color-danger-500: #dc2626;
+  --color-danger-600: #b91c1c;
+  --color-warning-50: #fffbeb;
+  --color-warning-500: #d97706;
+  --color-warning-600: #b45309;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.011em;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: var(--color-surface-300);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--color-surface-700);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulseSubtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@utility animate-fade-in-up {
+  animation: fadeInUp 0.3s ease-out both;
+}
+
+@utility animate-scale-in {
+  animation: scaleIn 0.2s ease-out both;
+}
+
+@utility animate-slide-in-left {
+  animation: slideInLeft 0.25s ease-out both;
+}

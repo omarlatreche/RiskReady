@@ -1,0 +1,17 @@
+[
+  {
+    "id": "scn_01",
+    "title": "ABC Corp Group Life Scheme Review",
+    "vignette": "ABC Corporation is a mid-sized manufacturing company with 350 employees. They currently operate a registered group life scheme providing 4x salary death-in-service benefits for all employees. The scheme is due for renewal and the financial adviser is reviewing the arrangements. The company has recently expanded into a new office in central London, and two senior employees have benefits exceeding the free cover limit."
+  },
+  {
+    "id": "scn_02",
+    "title": "Smith & Partners Income Protection Arrangement",
+    "vignette": "Smith & Partners is a professional services firm with 85 staff members across three categories: partners (12), senior associates (28), and support staff (45). They are looking to implement a new group income protection scheme. The firm wants to understand how different benefit structures and deferred periods would affect both costs and employee coverage. Some employees have pre-existing medical conditions."
+  },
+  {
+    "id": "scn_03",
+    "title": "TechStart Ltd Flexible Benefits Implementation",
+    "vignette": "TechStart Ltd is a growing technology company with 200 employees, predominantly aged 25-40. They want to implement a flexible benefits scheme that includes group life, income protection, and critical illness cover. The HR director is concerned about anti-selection risk and wants to understand how flexible benefits interact with traditional group risk arrangements."
+  }
+]
