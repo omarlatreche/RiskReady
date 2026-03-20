@@ -130,7 +130,7 @@ export default function AnalyticsPage() {
 
       {/* Weak chapters + Overconfidence side by side */}
       {(weakChapters.length > 0 || overconfidentChapters.length > 0) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className={cn('grid grid-cols-1 gap-6', overconfidentChapters.length > 0 && weakChapters.length > 0 && 'lg:grid-cols-2')}>
           {weakChapters.length > 0 && (
             <div className="bg-white dark:bg-surface-900 rounded-xl border border-surface-200/60 dark:border-surface-800/80 border-l-[3px] border-l-danger-500 shadow-sm shadow-surface-900/[0.03] p-6">
               <h2 className="font-semibold tracking-tight text-danger-600 dark:text-danger-500 mb-3">

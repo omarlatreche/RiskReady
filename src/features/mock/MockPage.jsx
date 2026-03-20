@@ -97,11 +97,12 @@ export default function MockPage() {
           {pastAttempts.length === 0 ? (
             <p className="text-sm text-surface-400 dark:text-surface-500 py-8 text-center">No mock exams taken yet. Your results will appear here.</p>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-1">
               {pastAttempts.map((attempt) => (
-                <div
+                <button
                   key={attempt.id}
-                  className="flex items-center justify-between py-2.5 border-b border-surface-100 dark:border-surface-800 last:border-0"
+                  onClick={() => navigate(`/mock/results/${attempt.id}`)}
+                  className="w-full flex items-center justify-between py-2.5 px-3 -mx-1 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-800/50 transition-colors text-left group"
                 >
                   <div>
                     <p className="text-sm font-medium text-surface-700 dark:text-surface-300">
@@ -112,13 +113,16 @@ export default function MockPage() {
                       {attempt.timeSpentSeconds && ` \u00b7 ${Math.floor(attempt.timeSpentSeconds / 60)}m`}
                     </p>
                   </div>
-                  <span className={cn(
-                    'text-lg font-bold tabular-nums',
-                    attempt.score >= 65 ? 'text-success-600 dark:text-success-500' : 'text-danger-600 dark:text-danger-500'
-                  )}>
-                    {attempt.score}%
-                  </span>
-                </div>
+                  <div className="flex items-center gap-2">
+                    <span className={cn(
+                      'text-lg font-bold tabular-nums',
+                      attempt.score >= 65 ? 'text-success-600 dark:text-success-500' : 'text-danger-600 dark:text-danger-500'
+                    )}>
+                      {attempt.score}%
+                    </span>
+                    <span className="text-surface-300 dark:text-surface-600 group-hover:text-surface-500 dark:group-hover:text-surface-400 transition-colors">&rarr;</span>
+                  </div>
+                </button>
               ))}
             </div>
           )}

@@ -175,7 +175,7 @@ export const useQuizStore = create((set, get) => ({
 
     const score = { correct, total, percentage, passed: percentage >= 65, timeSpentSeconds: timeSpent }
 
-    // Save attempt
+    // Save attempt (include question IDs for results reconstruction)
     api.saveAttempt({
       id: attemptId,
       mode,
@@ -185,6 +185,7 @@ export const useQuizStore = create((set, get) => ({
       timeSpentSeconds: timeSpent,
       startedAt: startedAt ? new Date(startedAt).toISOString() : null,
       completedAt: new Date().toISOString(),
+      questionIds: questions.map((q) => q.id),
     })
 
     // Save individual responses

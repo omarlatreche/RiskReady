@@ -37,7 +37,7 @@ export default function ReadinessGauge({ score, breakdown }) {
             <path
               d={`M ${startX} ${cy} A ${radius} ${radius} 0 0 1 ${endX} ${endY}`}
               fill="none"
-              stroke="#e5e2de"
+              className="stroke-surface-200 dark:stroke-surface-700"
               strokeWidth={strokeWidth}
               strokeLinecap="round"
             />
@@ -57,17 +57,18 @@ export default function ReadinessGauge({ score, breakdown }) {
               x={cx}
               y={cy - 8}
               textAnchor="middle"
-              className="fill-current"
-              style={{ fontSize: '36px', fontWeight: 700, fill: 'currentColor' }}
+              style={{ fontSize: '36px', fontWeight: 700 }}
+              fill={color.stroke}
             >
-              <tspan className={color.text}>{score}</tspan>
+              {score}
             </text>
             {/* Label */}
             <text
               x={cx}
               y={cy + 12}
               textAnchor="middle"
-              style={{ fontSize: '9px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', fill: '#78716c' }}
+              className="fill-surface-500 dark:fill-surface-400"
+              style={{ fontSize: '9px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}
             >
               {color.label}
             </text>

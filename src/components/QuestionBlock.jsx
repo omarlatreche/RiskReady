@@ -65,9 +65,10 @@ export default function QuestionBlock({
                 disabled={disabled && !showFeedback}
                 className={cn(
                   'w-full text-left px-4 py-3 rounded-lg border-2 transition-all duration-150 flex items-start gap-3',
-                  // Default state
+                  'border-surface-200 dark:border-surface-700',
+                  // Default state (no feedback)
                   !isSelected && !showFeedback &&
-                    'border-surface-200 dark:border-surface-700 hover:border-primary-300 dark:hover:border-primary-600 hover:bg-primary-50/50 dark:hover:bg-primary-500/5',
+                    'hover:border-primary-300 dark:hover:border-primary-600 hover:bg-primary-50/50 dark:hover:bg-primary-500/5',
                   // Selected, no feedback
                   isSelected && !showFeedback &&
                     'border-primary-500 bg-primary-50 dark:bg-primary-500/10 dark:border-primary-500',
@@ -77,6 +78,8 @@ export default function QuestionBlock({
                   // Wrong answer (feedback)
                   showWrong &&
                     'border-danger-500 bg-danger-50 dark:bg-danger-500/10 dark:border-danger-500',
+                  // Feedback but not selected/correct — dim
+                  showFeedback && !showCorrect && !showWrong && 'opacity-50',
                   // Disabled
                   disabled && !showFeedback && 'opacity-60 cursor-not-allowed',
                 )}

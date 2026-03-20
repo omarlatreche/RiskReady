@@ -9,6 +9,7 @@ import { cn, formatDate } from '@/lib/utils'
 const PracticePage = lazy(() => import('@/features/practice/PracticePage'))
 const PracticeSession = lazy(() => import('@/features/practice/PracticeSession'))
 const MockPage = lazy(() => import('@/features/mock/MockPage'))
+const MockResultsPage = lazy(() => import('@/features/mock/MockResultsPage'))
 const ReviewPage = lazy(() => import('@/features/review/ReviewPage'))
 const AnalyticsPage = lazy(() => import('@/features/analytics/AnalyticsPage'))
 const LoginPage = lazy(() => import('@/features/auth/LoginPage'))
@@ -30,15 +31,6 @@ function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div className="bg-gradient-to-br from-primary-50 via-white to-surface-50 dark:from-primary-500/5 dark:via-surface-900 dark:to-surface-950 -mx-4 sm:-mx-8 lg:-mx-10 -mt-6 lg:-mt-10 px-4 sm:px-8 lg:px-10 pt-8 lg:pt-12 pb-8 mb-2">
-        <h1 className="text-2xl font-bold tracking-tight text-surface-800 dark:text-surface-100">
-          Welcome to RiskReady
-        </h1>
-        <p className="text-surface-500 dark:text-surface-400 mt-1">
-          Your CII GR1 Group Risk exam preparation platform.
-        </p>
-      </div>
-
       {/* Quick stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-surface-900 rounded-xl border border-surface-200/60 dark:border-surface-800/80 border-l-[3px] border-l-accent-400 shadow-sm shadow-surface-900/[0.03] p-4">
@@ -99,16 +91,19 @@ function DashboardPage() {
           ) : (
             <div className="space-y-2.5">
               {attempts.map((a) => (
-                <div key={a.id} className="flex items-center justify-between py-2 border-b border-surface-100 dark:border-surface-800 last:border-0">
+                <Link key={a.id} to={`/mock/results/${a.id}`} className="flex items-center justify-between py-2 px-2 -mx-2 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-800/50 transition-colors group">
                   <div>
                     <p className="text-sm font-medium text-surface-700 dark:text-surface-300">{formatDate(a.completedAt)}</p>
                     <p className="text-xs text-surface-400 tabular-nums">{a.correctCount}/{a.totalQuestions} correct</p>
                   </div>
-                  <span className={cn(
-                    'text-lg font-bold tabular-nums',
-                    a.score >= 65 ? 'text-success-600 dark:text-success-500' : 'text-danger-600 dark:text-danger-500'
-                  )}>{a.score}%</span>
-                </div>
+                  <div className="flex items-center gap-2">
+                    <span className={cn(
+                      'text-lg font-bold tabular-nums',
+                      a.score >= 65 ? 'text-success-600 dark:text-success-500' : 'text-danger-600 dark:text-danger-500'
+                    )}>{a.score}%</span>
+                    <span className="text-surface-300 dark:text-surface-600 group-hover:text-surface-500 dark:group-hover:text-surface-400 transition-colors">&rarr;</span>
+                  </div>
+                </Link>
               ))}
             </div>
           )}
@@ -179,6 +174,7 @@ export default function AppRouter() {
               <Route path="practice" element={<PracticePage />} />
               <Route path="practice/:chapterId" element={<PracticeSession />} />
               <Route path="mock" element={<MockPage />} />
+              <Route path="mock/results/:attemptId" element={<MockResultsPage />} />
               <Route path="review" element={<ReviewPage />} />
               <Route path="analytics" element={<AnalyticsPage />} />
               <Route path="login" element={<LoginPage />} />

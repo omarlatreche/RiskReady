@@ -129,7 +129,19 @@ export default function Layout() {
         )}
 
         {/* Main content */}
-        <main className="flex-1 min-h-screen lg:min-h-0">
+        <main className="flex-1 min-h-screen lg:min-h-0 overflow-x-hidden">
+          {location.pathname === '/' && (
+            <div className="bg-gradient-to-br from-primary-100/60 via-primary-50/30 to-accent-400/10 dark:from-primary-500/10 dark:via-surface-900 dark:to-surface-950 border-b border-primary-200/30 dark:border-surface-800/60">
+              <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-10 pt-8 lg:pt-12 pb-8">
+                <h1 className="text-2xl font-bold tracking-tight text-surface-800 dark:text-surface-100">
+                  Welcome to RiskReady
+                </h1>
+                <p className="text-surface-500 dark:text-surface-400 mt-1">
+                  Your CII GR1 Group Risk exam preparation platform.
+                </p>
+              </div>
+            </div>
+          )}
           <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-10 py-6 lg:py-10 pb-24 lg:pb-8">
             <div className="animate-fade-in-up">
               <Outlet />
