@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/useAuthStore'
 import { api } from '@/lib/api'
 import { cn } from '@/lib/utils'
-import { IconHome, IconBook, IconTarget, IconRefresh, IconBarChart, IconFlame, IconMenu, IconSun, IconMoon } from '@/components/Icons'
+import { IconHome, IconBook, IconTarget, IconRefresh, IconBarChart, IconFlame, IconMenu, IconSun, IconMoon, IconLogOut } from '@/components/Icons'
 
 const navItems = [
   { to: '/', label: 'Home', icon: IconHome },
@@ -15,7 +15,8 @@ const navItems = [
 
 export default function Layout() {
   const location = useLocation()
-  const { user, init } = useAuthStore()
+  const navigate = useNavigate()
+  const { user, isGuest, loading: authLoading, init, signOut } = useAuthStore()
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window === 'undefined') return false
     const stored = localStorage.getItem('riskready_theme')
@@ -24,16 +25,25 @@ export default function Layout() {
   })
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
+  const [streakData, setStreakData] = useState({ currentStreak: 0, longestStreak: 0 })
+
   useEffect(() => {
     init()
   }, [])
 
   useEffect(() => {
+    if (authLoading) return
+    async function loadStreak() {
+      const data = await Promise.resolve(api.getStreakData())
+      setStreakData(data)
+    }
+    loadStreak()
+  }, [authLoading, isGuest])
+
+  useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode)
     localStorage.setItem('riskready_theme', darkMode ? 'dark' : 'light')
   }, [darkMode])
-
-  const streakData = api.getStreakData()
 
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-950">
@@ -108,14 +118,33 @@ export default function Layout() {
             )}
             <div className="flex items-center justify-between">
               <span className="text-xs text-surface-500 truncate">
-                {user?.displayName || 'Guest'}
+                {!isGuest ? (user?.email || user?.displayName || 'User') : 'Guest'}
               </span>
-              <button
-                onClick={() => setDarkMode(!darkMode)}
-                className="p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-500 dark:text-surface-400 transition-colors"
-              >
-                {darkMode ? <IconSun className="w-4 h-4" /> : <IconMoon className="w-4 h-4" />}
-              </button>
+              <div className="flex items-center gap-1">
+                {!isGuest ? (
+                  <button
+                    onClick={async () => { await signOut(); navigate('/login') }}
+                    title="Sign out"
+                    className="p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-500 dark:text-surface-400 transition-colors"
+                  >
+                    <IconLogOut className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <Link
+                    to="/login"
+                    onClick={() => setSidebarOpen(false)}
+                    className="text-xs text-primary-600 dark:text-primary-400 font-medium hover:underline"
+                  >
+                    Sign in
+                  </Link>
+                )}
+                <button
+                  onClick={() => setDarkMode(!darkMode)}
+                  className="p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-500 dark:text-surface-400 transition-colors"
+                >
+                  {darkMode ? <IconSun className="w-4 h-4" /> : <IconMoon className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
           </div>
         </aside>

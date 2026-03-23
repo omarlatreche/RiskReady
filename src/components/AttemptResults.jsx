@@ -89,7 +89,7 @@ export default function AttemptResults({ score, questions, responses, mode, show
               onClick={async () => {
                 try {
                   const { generateCertificatePDF } = await import('@/lib/pdf')
-                  const profile = api.getProfile()
+                  const profile = await Promise.resolve(api.getProfile())
                   generateCertificatePDF({ userName: profile?.displayName || 'Guest', score: score.percentage, completedAt: new Date().toISOString() })
                 } catch (e) {
                   console.error('Certificate generation failed:', e)

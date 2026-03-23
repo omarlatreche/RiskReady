@@ -14,8 +14,11 @@ export default function MockPage() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    const attempts = api.getAttempts().filter((a) => a.mode === 'mock')
-    setPastAttempts(attempts.reverse())
+    async function load() {
+      const attempts = await Promise.resolve(api.getAttempts())
+      setPastAttempts(attempts.filter((a) => a.mode === 'mock').reverse())
+    }
+    load()
   }, [mode])
 
   const handleStart = async () => {

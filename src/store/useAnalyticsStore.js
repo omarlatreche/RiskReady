@@ -13,10 +13,12 @@ export const useAnalyticsStore = create((set, get) => ({
   overconfidentChapters: [],
   readinessScore: null,
 
-  loadAnalytics() {
-    const attempts = api.getAttempts()
-    const responses = api.getResponses()
-    const streakData = api.getStreakData()
+  async loadAnalytics() {
+    const [attempts, responses, streakData] = await Promise.all([
+      Promise.resolve(api.getAttempts()),
+      Promise.resolve(api.getResponses()),
+      Promise.resolve(api.getStreakData()),
+    ])
 
     const { byChapter } = calculateScore(responses)
     const confidenceMatrix = analyzeConfidence(responses)

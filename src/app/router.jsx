@@ -1,9 +1,10 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import Layout from './layout'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { IconBook, IconTarget, IconRefresh, IconBarChart } from '@/components/Icons'
 import { api } from '@/lib/api'
+import { useAuthStore } from '@/store/useAuthStore'
 import { cn, formatDate } from '@/lib/utils'
 
 const PracticePage = lazy(() => import('@/features/practice/PracticePage'))
@@ -24,10 +25,28 @@ function LazyFallback() {
 }
 
 function DashboardPage() {
-  const attempts = api.getAttempts().filter((a) => a.mode === 'mock').slice(-3).reverse()
-  const streakData = api.getStreakData()
-  const responses = api.getResponses()
-  const reviewCount = api.getReviewQueue().filter((q) => !q.resolved).length
+  const [attempts, setAttempts] = useState([])
+  const [streakData, setStreakData] = useState({ currentStreak: 0, longestStreak: 0 })
+  const [responses, setResponses] = useState([])
+  const [reviewCount, setReviewCount] = useState(0)
+  const { loading: authLoading, isGuest } = useAuthStore()
+
+  useEffect(() => {
+    if (authLoading) return
+    async function load() {
+      const [att, streak, resp, queue] = await Promise.all([
+        Promise.resolve(api.getAttempts()),
+        Promise.resolve(api.getStreakData()),
+        Promise.resolve(api.getResponses()),
+        Promise.resolve(api.getReviewQueue()),
+      ])
+      setAttempts(att.filter((a) => a.mode === 'mock').slice(-3).reverse())
+      setStreakData(streak)
+      setResponses(resp)
+      setReviewCount(queue.filter((q) => !q.resolved).length)
+    }
+    load()
+  }, [authLoading, isGuest])
 
   return (
     <div className="space-y-8">

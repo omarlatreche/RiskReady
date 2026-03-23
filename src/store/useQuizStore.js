@@ -108,13 +108,13 @@ export const useQuizStore = create((set, get) => ({
       },
     })
 
-    // Save incorrect answers to review queue (practice and mock modes)
+    // Fire-and-forget review queue calls (works for both sync and async)
     const { mode } = get()
     if ((mode === 'practice' || mode === 'mock') && !correct) {
-      api.addToReviewQueue(questionId, question.chapter)
+      void Promise.resolve(api.addToReviewQueue(questionId, question.chapter))
     }
     if (mode === 'review' && correct) {
-      api.removeFromReviewQueue(questionId)
+      void Promise.resolve(api.removeFromReviewQueue(questionId))
     }
   },
 
@@ -162,7 +162,7 @@ export const useQuizStore = create((set, get) => ({
     set({ flagged: next })
   },
 
-  submitExam() {
+  async submitExam() {
     const { timerInterval, responses, questions, attemptId, mode, startedAt } = get()
 
     if (timerInterval) clearInterval(timerInterval)
@@ -175,8 +175,11 @@ export const useQuizStore = create((set, get) => ({
 
     const score = { correct, total, percentage, passed: percentage >= 65, timeSpentSeconds: timeSpent }
 
-    // Save attempt (include question IDs for results reconstruction)
-    api.saveAttempt({
+    // Set submitted state immediately so UI updates
+    set({ isSubmitted: true, score, timerInterval: null })
+
+    // Save to backend (works for both sync localStorage and async Supabase)
+    await Promise.resolve(api.saveAttempt({
       id: attemptId,
       mode,
       score: percentage,
@@ -186,20 +189,17 @@ export const useQuizStore = create((set, get) => ({
       startedAt: startedAt ? new Date(startedAt).toISOString() : null,
       completedAt: new Date().toISOString(),
       questionIds: questions.map((q) => q.id),
-    })
+    }))
 
-    // Save individual responses
-    api.saveResponses(
+    await Promise.resolve(api.saveResponses(
       responseList.map((r) => ({
         ...r,
         attemptId,
       }))
-    )
+    ))
 
-    // Update streak
-    api.updateStreak()
-
-    set({ isSubmitted: true, score, timerInterval: null })
+    // Update streak (fire-and-forget)
+    void Promise.resolve(api.updateStreak())
   },
 
   resetQuiz() {

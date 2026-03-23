@@ -12,9 +12,12 @@ export default function PracticePage() {
   const [questionCounts, setQuestionCounts] = useState({})
 
   useEffect(() => {
-    const responses = api.getResponses()
-    const { byChapter } = calculateScore(responses)
-    setChapterStats(byChapter)
+    async function loadData() {
+      const responses = await Promise.resolve(api.getResponses())
+      const { byChapter } = calculateScore(responses)
+      setChapterStats(byChapter)
+    }
+    loadData()
 
     loadAllQuestions().then((allQ) => {
       const counts = {}

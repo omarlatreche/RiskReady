@@ -45,11 +45,16 @@ export default function AnalyticsPage() {
   }))
 
   const handleExportProgress = async () => {
-    const { exportProgressReport } = await import('@/lib/export')
+    const [{ exportProgressReport }, attempts, responses, reviewQueue] = await Promise.all([
+      import('@/lib/export'),
+      Promise.resolve(api.getAttempts()),
+      Promise.resolve(api.getResponses()),
+      Promise.resolve(api.getReviewQueue()),
+    ])
     exportProgressReport({
-      attempts: api.getAttempts(),
-      responses: api.getResponses(),
-      reviewQueue: api.getReviewQueue(),
+      attempts,
+      responses,
+      reviewQueue,
       streakData,
       chapterAccuracy,
       chapters,
@@ -57,9 +62,12 @@ export default function AnalyticsPage() {
   }
 
   const handleExportQuestions = async () => {
-    const { exportQuestionAnalysis } = await import('@/lib/export')
+    const [{ exportQuestionAnalysis }, responses] = await Promise.all([
+      import('@/lib/export'),
+      Promise.resolve(api.getResponses()),
+    ])
     exportQuestionAnalysis({
-      responses: api.getResponses(),
+      responses,
       questions: allQuestions,
       chapters,
     })

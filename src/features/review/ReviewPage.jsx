@@ -16,7 +16,8 @@ export default function ReviewPage() {
 
   useEffect(() => {
     async function load() {
-      const queue = api.getReviewQueue().filter((q) => !q.resolved)
+      const rawQueue = await Promise.resolve(api.getReviewQueue())
+      const queue = rawQueue.filter((q) => !q.resolved)
       const questions = await loadAllQuestions()
       setReviewQueue(queue)
       setAllQuestions(questions)

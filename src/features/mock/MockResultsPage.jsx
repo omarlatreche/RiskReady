@@ -12,14 +12,14 @@ export default function MockResultsPage() {
 
   useEffect(() => {
     async function load() {
-      const attempts = api.getAttempts()
+      const attempts = await Promise.resolve(api.getAttempts())
       const attempt = attempts.find((a) => a.id === attemptId)
       if (!attempt) {
         setLoading(false)
         return
       }
 
-      const allResponses = api.getResponsesByAttempt(attemptId)
+      const allResponses = await Promise.resolve(api.getResponsesByAttempt(attemptId))
       const allQuestions = await loadAllQuestions()
 
       // Reconstruct questions list from saved questionIds or from responses
