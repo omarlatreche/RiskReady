@@ -31,6 +31,8 @@ jobs:
           VITE_BASE_URL: /RiskReady/
       - name: Copy index.html to 404.html for SPA routing
         run: cp dist/index.html dist/404.html
+      - name: Add .nojekyll to bypass Jekyll processing
+        run: touch dist/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
