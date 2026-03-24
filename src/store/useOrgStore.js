@@ -81,10 +81,15 @@ export const useOrgStore = create((set, get) => ({
       await api.inviteMember(email)
       const invites = await api.getOrgInvites()
       set({ invites })
-      return true
+      return { ok: true }
     } catch (err) {
-      set({ error: err.message })
-      return false
+      const msg = err.message?.includes('Seat limit')
+        ? 'Your organisation has reached its seat limit. Contact support to add more seats.'
+        : err.message?.includes('duplicate') || err.message?.includes('unique')
+          ? 'This email has already been invited.'
+          : err.message || 'Failed to send invite.'
+      set({ error: msg })
+      return { ok: false, error: msg }
     }
   },
 

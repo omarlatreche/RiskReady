@@ -76,6 +76,9 @@ function toCamel(obj) {
     user_id: 'userId',
     org_id: 'orgId',
     created_at: 'createdAt',
+    max_seats: 'maxSeats',
+    created_by: 'createdBy',
+    invited_by: 'invitedBy',
   }
   const result = {}
   for (const [k, v] of Object.entries(obj)) {
@@ -288,20 +291,6 @@ export const remoteApi = {
       .single()
     if (!org) return null
     return { ...toCamel(org), role: profile.role }
-  },
-
-  async createOrg(name) {
-    const { data: org, error } = await supabase
-      .from('organisations')
-      .insert({ name, created_by: uid() })
-      .select()
-      .single()
-    if (error) { console.error('createOrg error:', error.message || error); throw error }
-    // Set current user as admin
-    await supabase.from('profiles')
-      .update({ org_id: org.id, role: 'admin', updated_at: new Date().toISOString() })
-      .eq('id', uid())
-    return { ...toCamel(org), role: 'admin' }
   },
 
   async getOrgMembers() {

@@ -2,65 +2,33 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useOrgStore } from '@/store/useOrgStore'
-import { api } from '@/lib/api'
 import { cn, formatDate } from '@/lib/utils'
 import { IconBuilding, IconUsers, IconUserPlus, IconTrash, IconMail } from '@/components/Icons'
 
-function CreateOrgForm() {
-  const [name, setName] = useState('')
-  const [creating, setCreating] = useState(false)
-  const [error, setError] = useState('')
-  const refreshOrg = useAuthStore((s) => s.refreshOrg)
-
-  async function handleCreate(e) {
-    e.preventDefault()
-    if (!name.trim()) return
-    setCreating(true)
-    setError('')
-    try {
-      const result = await api.createOrg(name.trim())
-      console.log('createOrg result:', result)
-      await refreshOrg()
-    } catch (err) {
-      console.error('Failed to create org:', err.message || err)
-      setError(err.message || 'Failed to create organisation')
-    }
-    setCreating(false)
-  }
-
+function NoOrgMessage() {
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-surface-800 dark:text-surface-100">Organisation</h1>
-        <p className="text-surface-500 dark:text-surface-400 mt-1">Create an organisation to manage your team.</p>
+        <p className="text-surface-500 dark:text-surface-400 mt-1">Team management and analytics.</p>
       </div>
       <div className="bg-white dark:bg-surface-900 rounded-xl border-2 border-dashed border-surface-200 dark:border-surface-700 p-12 text-center">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-surface-100 dark:bg-surface-800 mb-4">
           <IconBuilding className="w-7 h-7 text-surface-400 dark:text-surface-500" />
         </div>
         <h2 className="text-lg font-semibold tracking-tight text-surface-800 dark:text-surface-100 mb-2">
-          Create your organisation
+          Your organisation hasn't been set up yet
         </h2>
         <p className="text-sm text-surface-500 dark:text-surface-400 max-w-md mx-auto leading-relaxed mb-6">
-          Set up an organisation to invite team members and track their exam progress.
+          Contact us to get your team set up on RiskReady. We'll create your organisation and give you admin access.
         </p>
-        <form onSubmit={handleCreate} className="flex items-center gap-3 max-w-sm mx-auto">
-          <input
-            type="text"
-            placeholder="Organisation name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="flex-1 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-800 text-surface-800 dark:text-surface-100 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500"
-          />
-          <button
-            type="submit"
-            disabled={creating || !name.trim()}
-            className="px-4 py-2 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 transition-colors"
-          >
-            {creating ? 'Creating...' : 'Create'}
-          </button>
-        </form>
-        {error && <p className="text-sm text-danger-600 dark:text-danger-400 mt-3">{error}</p>}
+        <a
+          href="mailto:omarl1933@gmail.com?subject=RiskReady Organisation Setup"
+          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-colors"
+        >
+          <IconMail className="w-4 h-4" />
+          Contact Us
+        </a>
       </div>
     </div>
   )
@@ -81,10 +49,11 @@ function StatCard({ label, value, accent = 'border-l-primary-500' }) {
   )
 }
 
-function OverviewTab({ members, stats, navigate }) {
+function OverviewTab({ members, stats, navigate, maxSeats }) {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <StatCard label="Seats" value={`${stats.totalMembers} / ${maxSeats || '∞'}`} accent="border-l-surface-400" />
         <StatCard label="Team Members" value={stats.totalMembers} accent="border-l-primary-500" />
         <StatCard label="Team Pass Rate" value={`${stats.teamPassRate}%`} accent="border-l-success-500" />
         <StatCard label="Avg Score" value={stats.teamAvgScore > 0 ? `${stats.teamAvgScore}%` : '-'} accent="border-l-accent-400" />
@@ -227,8 +196,8 @@ function MembersTab({ members, invites, onInvite, onRevokeInvite, onRemoveMember
     if (!email.trim()) return
     setInviting(true)
     setInviteError('')
-    const ok = await onInvite(email.trim())
-    if (!ok) setInviteError('Failed to send invite. The email may already be invited.')
+    const result = await onInvite(email.trim())
+    if (!result.ok) setInviteError(result.error || 'Failed to send invite.')
     else setEmail('')
     setInviting(false)
   }
@@ -355,9 +324,9 @@ export default function OrgDashboard() {
   // Not authenticated or not admin — redirecting
   if (isGuest || (org && org.role !== 'admin')) return null
 
-  // No org — show create form
+  // No org — show contact message
   if (!org) {
-    return <CreateOrgForm />
+    return <NoOrgMessage />
   }
 
   return (
@@ -392,7 +361,7 @@ export default function OrgDashboard() {
       ) : (
         <>
           {activeTab === 'overview' && stats && (
-            <OverviewTab members={members} stats={stats} navigate={navigate} />
+            <OverviewTab members={members} stats={stats} navigate={navigate} maxSeats={org.maxSeats} />
           )}
           {activeTab === 'analytics' && stats && (
             <AnalyticsTab members={members} stats={stats} />

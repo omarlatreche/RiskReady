@@ -19,11 +19,12 @@ create table public.organisations (
   id         uuid primary key default gen_random_uuid(),
   name       text not null,
   created_by uuid not null references auth.users(id),
+  max_seats  integer not null default 10,
   created_at timestamptz not null default now()
 );
 alter table public.organisations enable row level security;
-create policy "Members read own org" on public.organisations for select using (id in (select org_id from public.profiles where id = auth.uid()));
-create policy "Auth users create org" on public.organisations for insert with check (auth.uid() = created_by);
+create policy "Members read own org" on public.organisations for select using (id = public.get_my_org_id());
+-- No INSERT policy — orgs are provisioned via provision_org() in SQL editor only
 
 -- ORG INVITES
 create table public.org_invites (
