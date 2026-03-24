@@ -16,6 +16,12 @@ export const api = new Proxy({}, {
     if (typeof fn === 'function') {
       return (...args) => fn.apply(backend, args)
     }
+    // Fallback: if method missing on current backend, try the other
+    const fallback = _useRemote ? localApi : remoteApi
+    const fallbackFn = fallback[method]
+    if (typeof fallbackFn === 'function') {
+      return (...args) => fallbackFn.apply(fallback, args)
+    }
     return fn
   },
 })

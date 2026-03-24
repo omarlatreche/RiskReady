@@ -9,17 +9,21 @@ import { IconBuilding, IconUsers, IconUserPlus, IconTrash, IconMail } from '@/co
 function CreateOrgForm() {
   const [name, setName] = useState('')
   const [creating, setCreating] = useState(false)
+  const [error, setError] = useState('')
   const refreshOrg = useAuthStore((s) => s.refreshOrg)
 
   async function handleCreate(e) {
     e.preventDefault()
     if (!name.trim()) return
     setCreating(true)
+    setError('')
     try {
-      await api.createOrg(name.trim())
+      const result = await api.createOrg(name.trim())
+      console.log('createOrg result:', result)
       await refreshOrg()
     } catch (err) {
-      console.error('Failed to create org:', err)
+      console.error('Failed to create org:', err.message || err)
+      setError(err.message || 'Failed to create organisation')
     }
     setCreating(false)
   }
@@ -56,6 +60,7 @@ function CreateOrgForm() {
             {creating ? 'Creating...' : 'Create'}
           </button>
         </form>
+        {error && <p className="text-sm text-danger-600 dark:text-danger-400 mt-3">{error}</p>}
       </div>
     </div>
   )
@@ -322,7 +327,7 @@ function MembersTab({ members, invites, onInvite, onRevokeInvite, onRemoveMember
 
 export default function OrgDashboard() {
   const navigate = useNavigate()
-  const { org, isGuest } = useAuthStore()
+  const { org, isGuest, loading: authLoading } = useAuthStore()
   const { members, invites, stats, loading, loadDashboard, inviteMember, revokeInvite, removeMember } = useOrgStore()
   const [activeTab, setActiveTab] = useState('overview')
 
@@ -333,9 +338,19 @@ export default function OrgDashboard() {
   }, [org])
 
   useEffect(() => {
+    if (authLoading) return // Wait for auth to finish before redirecting
     if (isGuest) navigate('/login')
     else if (org && org.role !== 'admin') navigate('/')
-  }, [isGuest, org, navigate])
+  }, [authLoading, isGuest, org, navigate])
+
+  // Still loading auth — show spinner
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="animate-spin w-6 h-6 border-[2.5px] border-primary-200 border-t-primary-600 dark:border-surface-700 dark:border-t-primary-400 rounded-full" />
+      </div>
+    )
+  }
 
   // Not authenticated or not admin — redirecting
   if (isGuest || (org && org.role !== 'admin')) return null
