@@ -55,29 +55,23 @@ export default function QuizRunner({ onComplete }) {
     <div className="max-w-3xl mx-auto">
       {/* Header bar */}
       <div className="sticky top-0 z-10 bg-white/80 dark:bg-surface-950/80 backdrop-blur-lg shadow-sm shadow-surface-900/[0.04] px-4 py-2.5 mb-6 -mx-4">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-sm font-semibold tabular-nums text-surface-700 dark:text-surface-300 shrink-0">
-              {currentIndex + 1}<span className="text-surface-400 dark:text-surface-500 font-normal">/{questions.length}</span>
-            </span>
-            <div className="flex-1 h-1.5 bg-surface-200/60 dark:bg-surface-800 rounded-full overflow-hidden min-w-[60px]">
-              <div
-                className="h-full bg-primary-500 rounded-full transition-all duration-500 ease-out"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-            <span className="text-[11px] text-surface-400 tabular-nums shrink-0 hidden sm:inline">{answeredCount} answered</span>
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-semibold tabular-nums text-surface-700 dark:text-surface-300 shrink-0">
+            {currentIndex + 1}<span className="text-surface-400 dark:text-surface-500 font-normal">/{questions.length}</span>
+          </span>
+          <div className="flex-1 h-1.5 bg-surface-200/60 dark:bg-surface-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary-500 rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${progress}%` }}
+            />
           </div>
-
-          <div className="flex items-center gap-1.5 shrink-0">
-            {mode === 'mock' && <Timer timeRemaining={timeRemaining} />}
-            <button
-              onClick={() => setShowPalette(!showPalette)}
-              className="p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-500 dark:text-surface-400 transition-colors"
-            >
-              <IconGrid className="w-4 h-4" />
-            </button>
-          </div>
+          {mode === 'mock' && <Timer timeRemaining={timeRemaining} />}
+          <button
+            onClick={() => setShowPalette(!showPalette)}
+            className="p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-500 dark:text-surface-400 transition-colors shrink-0"
+          >
+            <IconGrid className="w-4 h-4" />
+          </button>
         </div>
       </div>
 

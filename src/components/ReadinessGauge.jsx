@@ -77,27 +77,29 @@ export default function ReadinessGauge({ score, breakdown }) {
 
         {/* Breakdown */}
         <div className="w-full grid grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-3">
-          <BreakdownItem label="Mock Average" value={breakdown.mockComponent} weight="35%" />
+          <BreakdownItem label="Mock Avg" value={breakdown.mockComponent} weight="35%" />
           <BreakdownItem label="Coverage" value={breakdown.coverageComponent} weight="25%" />
-          <BreakdownItem label="Weakest Area" value={breakdown.weakestComponent} weight="20%" />
-          <BreakdownItem label="Trend" value={breakdown.trendComponent} weight="20%" />
+          <BreakdownItem label="Weakest Ch." value={breakdown.weakestComponent} weight="20%" />
+          <BreakdownItem label="Improving?" value={breakdown.trendComponent} weight="20%" noData={breakdown.trendComponent === 50 && breakdown.mockComponent === 0} />
         </div>
       </div>
     </div>
   )
 }
 
-function BreakdownItem({ label, value, weight }) {
+function BreakdownItem({ label, value, weight, noData }) {
   return (
     <div>
       <div className="flex items-baseline justify-between mb-1">
         <span className="text-xs font-medium text-surface-600 dark:text-surface-400">{label}</span>
-        <span className="text-sm font-semibold tabular-nums text-surface-800 dark:text-surface-200">{value}</span>
+        <span className="text-sm font-semibold tabular-nums text-surface-800 dark:text-surface-200">
+          {noData ? '-' : value}
+        </span>
       </div>
       <div className="w-full h-1.5 bg-surface-100 dark:bg-surface-800 rounded-full overflow-hidden">
         <div
           className="h-full rounded-full bg-primary-500 transition-all duration-500 ease-out"
-          style={{ width: `${value}%` }}
+          style={{ width: noData ? '0%' : `${value}%` }}
         />
       </div>
       <span className="text-[9px] text-surface-400 dark:text-surface-500">{weight}</span>
