@@ -3,9 +3,9 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/useAuthStore'
 import { api } from '@/lib/api'
 import { cn } from '@/lib/utils'
-import { IconHome, IconBook, IconTarget, IconRefresh, IconBarChart, IconFlame, IconMenu, IconSun, IconMoon, IconLogOut } from '@/components/Icons'
+import { IconHome, IconBook, IconTarget, IconRefresh, IconBarChart, IconFlame, IconMenu, IconSun, IconMoon, IconLogOut, IconBuilding } from '@/components/Icons'
 
-const navItems = [
+const baseNavItems = [
   { to: '/', label: 'Home', icon: IconHome },
   { to: '/practice', label: 'Practice', icon: IconBook },
   { to: '/mock', label: 'Mock Exam', icon: IconTarget },
@@ -16,7 +16,10 @@ const navItems = [
 export default function Layout() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { user, isGuest, loading: authLoading, init, signOut } = useAuthStore()
+  const { user, isGuest, loading: authLoading, init, signOut, org } = useAuthStore()
+  const navItems = org?.role === 'admin'
+    ? [...baseNavItems, { to: '/org', label: 'Organisation', icon: IconBuilding }]
+    : baseNavItems
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window === 'undefined') return false
     const stored = localStorage.getItem('riskready_theme')
@@ -110,6 +113,12 @@ export default function Layout() {
 
           {/* Footer */}
           <div className="px-4 py-4 border-t border-surface-200/60 dark:border-surface-800/60 space-y-3">
+            {org && (
+              <div className="flex items-center gap-2 text-xs text-surface-500 dark:text-surface-400">
+                <IconBuilding className="w-3.5 h-3.5" />
+                <span className="truncate">{org.name}</span>
+              </div>
+            )}
             {streakData.currentStreak > 0 && (
               <div className="flex items-center gap-2 text-sm text-surface-600 dark:text-surface-400">
                 <IconFlame className="w-4 h-4 text-accent-400" />
@@ -182,7 +191,7 @@ export default function Layout() {
       {/* Mobile bottom nav */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/90 dark:bg-surface-950/90 backdrop-blur-lg border-t border-surface-200/60 dark:border-surface-800/60">
         <div className="flex">
-          {navItems.slice(1).map((item) => {
+          {baseNavItems.slice(1).map((item) => {
             const isActive = location.pathname.startsWith(item.to)
             const Icon = item.icon
             return (

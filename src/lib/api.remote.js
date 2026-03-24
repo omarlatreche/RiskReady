@@ -9,14 +9,21 @@ function getUserId() {
   return supabase?._currentSession?.user?.id ?? null
 }
 
-// We'll use a module-level cache for the user ID, set by the auth store
+// We'll use a module-level cache for the user ID and org ID, set by the auth store
 let _cachedUserId = null
+let _cachedOrgId = null
 export function setRemoteUserId(id) {
   _cachedUserId = id
+}
+export function setRemoteOrgId(id) {
+  _cachedOrgId = id
 }
 
 function uid() {
   return _cachedUserId
+}
+function orgId() {
+  return _cachedOrgId
 }
 
 // camelCase to snake_case key mapping for DB writes
@@ -92,6 +99,7 @@ export const remoteApi = {
   async saveAttempt(attempt) {
     const row = toSnake(attempt)
     row.user_id = uid()
+    row.org_id = orgId() || null
     const { error } = await supabase.from('attempts').insert(row)
     if (error) console.error('saveAttempt error:', error.message || error)
     return attempt
@@ -120,7 +128,7 @@ export const remoteApi = {
 
   async saveResponses(responses) {
     const rows = responses.map((r) => {
-      const row = { ...toSnake(r), user_id: uid() }
+      const row = { ...toSnake(r), user_id: uid(), org_id: orgId() || null }
       // answeredAt may be epoch ms (from Date.now()) — convert to ISO string
       if (typeof row.answered_at === 'number') {
         row.answered_at = new Date(row.answered_at).toISOString()
@@ -146,6 +154,7 @@ export const remoteApi = {
       .from('review_queue')
       .upsert({
         user_id: uid(),
+        org_id: orgId() || null,
         question_id: questionId,
         chapter,
         added_at: new Date().toISOString(),
@@ -219,6 +228,7 @@ export const remoteApi = {
       .from('streaks')
       .upsert({
         user_id: uid(),
+        org_id: orgId() || null,
         current_streak: data.currentStreak,
         longest_streak: data.longestStreak,
         last_active_date: data.lastActiveDate,
@@ -259,5 +269,110 @@ export const remoteApi = {
       supabase.from('review_queue').delete().eq('user_id', userId),
       supabase.from('streaks').delete().eq('user_id', userId),
     ])
+  },
+
+  // --- Organisation methods ---
+
+  async getOrgProfile() {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('org_id, role')
+      .eq('id', uid())
+      .single()
+    if (!profile?.org_id) return null
+
+    const { data: org } = await supabase
+      .from('organisations')
+      .select('*')
+      .eq('id', profile.org_id)
+      .single()
+    if (!org) return null
+    return { ...toCamel(org), role: profile.role }
+  },
+
+  async createOrg(name) {
+    const { data: org, error } = await supabase
+      .from('organisations')
+      .insert({ name, created_by: uid() })
+      .select()
+      .single()
+    if (error) { console.error('createOrg error:', error.message || error); throw error }
+    // Set current user as admin
+    await supabase.from('profiles')
+      .update({ org_id: org.id, role: 'admin', updated_at: new Date().toISOString() })
+      .eq('id', uid())
+    return { ...toCamel(org), role: 'admin' }
+  },
+
+  async getOrgMembers() {
+    const { data } = await supabase
+      .from('profiles')
+      .select('id, display_name, org_id, role, created_at')
+      .not('org_id', 'is', null)
+    return (data || []).map(toCamel)
+  },
+
+  async getOrgMemberStats() {
+    const { data: attempts } = await supabase
+      .from('attempts')
+      .select('*')
+      .not('org_id', 'is', null)
+    const { data: streaks } = await supabase
+      .from('streaks')
+      .select('*')
+      .not('org_id', 'is', null)
+    return {
+      attempts: (attempts || []).map(toCamel),
+      streaks: (streaks || []).map(toCamel),
+    }
+  },
+
+  async getOrgMemberAttempts(userId) {
+    const { data } = await supabase
+      .from('attempts')
+      .select('*')
+      .eq('user_id', userId)
+      .not('org_id', 'is', null)
+      .order('completed_at', { ascending: true })
+    return (data || []).map(toCamel)
+  },
+
+  async getOrgMemberResponses(userId) {
+    const { data } = await supabase
+      .from('responses')
+      .select('*')
+      .eq('user_id', userId)
+      .not('org_id', 'is', null)
+      .order('answered_at', { ascending: true })
+    return (data || []).map(toCamel)
+  },
+
+  async inviteMember(email) {
+    const profile = await this.getOrgProfile()
+    if (!profile) throw new Error('No org')
+    const { error } = await supabase
+      .from('org_invites')
+      .insert({ org_id: profile.id, email, invited_by: uid() })
+    if (error) { console.error('inviteMember error:', error.message || error); throw error }
+  },
+
+  async getOrgInvites() {
+    const { data } = await supabase
+      .from('org_invites')
+      .select('*')
+      .order('created_at', { ascending: false })
+    return (data || []).map(toCamel)
+  },
+
+  async revokeInvite(inviteId) {
+    const { error } = await supabase.from('org_invites').delete().eq('id', inviteId)
+    if (error) console.error('revokeInvite error:', error.message || error)
+  },
+
+  async removeMember(userId) {
+    const { error } = await supabase.from('profiles')
+      .update({ org_id: null, role: 'user', updated_at: new Date().toISOString() })
+      .eq('id', userId)
+    if (error) console.error('removeMember error:', error.message || error)
   },
 }

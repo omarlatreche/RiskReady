@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { api, setApiMode, setRemoteUserId } from '@/lib/api'
+import { api, setApiMode, setRemoteUserId, setRemoteOrgId } from '@/lib/api'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { migrateLocalDataToSupabase } from '@/lib/migrate'
 
@@ -10,7 +10,17 @@ function activateRemote(userId) {
 
 function deactivateRemote() {
   setRemoteUserId(null)
+  setRemoteOrgId(null)
   setApiMode(false)
+}
+
+async function fetchOrgProfile() {
+  if (typeof api.getOrgProfile !== 'function') return null
+  try {
+    return await api.getOrgProfile()
+  } catch {
+    return null
+  }
 }
 
 export const useAuthStore = create((set, get) => ({
@@ -32,10 +42,12 @@ export const useAuthStore = create((set, get) => ({
     const { data: { session } } = await supabase.auth.getSession()
     if (session?.user) {
       activateRemote(session.user.id)
-      const profile = await api.getProfile()
+      const [profile, org] = await Promise.all([api.getProfile(), fetchOrgProfile()])
+      if (org) setRemoteOrgId(org.id)
       set({
         user: { ...profile, email: session.user.email },
         isGuest: false,
+        org,
         loading: false,
       })
     } else {
@@ -48,15 +60,17 @@ export const useAuthStore = create((set, get) => ({
     supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         activateRemote(session.user.id)
-        const profile = await api.getProfile()
+        const [profile, org] = await Promise.all([api.getProfile(), fetchOrgProfile()])
+        if (org) setRemoteOrgId(org.id)
         set({
           user: { ...profile, email: session.user.email },
           isGuest: false,
+          org,
         })
       } else {
         deactivateRemote()
         const profile = api.getProfile()
-        set({ user: profile, isGuest: true })
+        set({ user: profile, isGuest: true, org: null })
       }
     })
   },
@@ -82,10 +96,12 @@ export const useAuthStore = create((set, get) => ({
       activateRemote(data.user.id)
       // Migrate any localStorage data to Supabase
       await migrateLocalDataToSupabase()
-      const profile = await api.getProfile()
+      const [profile, org] = await Promise.all([api.getProfile(), fetchOrgProfile()])
+      if (org) setRemoteOrgId(org.id)
       set({
         user: { ...profile, email: data.user.email },
         isGuest: false,
+        org,
         loading: false,
         error: null,
       })
@@ -110,10 +126,12 @@ export const useAuthStore = create((set, get) => ({
       activateRemote(data.user.id)
       // Migrate any localStorage data to Supabase
       await migrateLocalDataToSupabase()
-      const profile = await api.getProfile()
+      const [profile, org] = await Promise.all([api.getProfile(), fetchOrgProfile()])
+      if (org) setRemoteOrgId(org.id)
       set({
         user: { ...profile, email: data.user.email },
         isGuest: false,
+        org,
         loading: false,
         error: null,
       })
@@ -140,6 +158,12 @@ export const useAuthStore = create((set, get) => ({
     const profile = { ...currentProfile, displayName: name }
     await Promise.resolve(api.setProfile(profile))
     set({ user: { ...get().user, displayName: name } })
+  },
+
+  async refreshOrg() {
+    const org = await fetchOrgProfile()
+    if (org) setRemoteOrgId(org.id)
+    set({ org })
   },
 
   clearError() {

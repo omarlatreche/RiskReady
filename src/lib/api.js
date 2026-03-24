@@ -1,5 +1,5 @@
 import { localApi } from './api.local'
-import { remoteApi, setRemoteUserId } from './api.remote'
+import { remoteApi, setRemoteUserId, setRemoteOrgId } from './api.remote'
 
 let _useRemote = false
 
@@ -7,7 +7,7 @@ export function setApiMode(remote) {
   _useRemote = remote
 }
 
-export { setRemoteUserId }
+export { setRemoteUserId, setRemoteOrgId }
 
 export const api = new Proxy({}, {
   get(_, method) {

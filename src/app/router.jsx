@@ -15,6 +15,7 @@ const ReviewPage = lazy(() => import('@/features/review/ReviewPage'))
 const AnalyticsPage = lazy(() => import('@/features/analytics/AnalyticsPage'))
 const LoginPage = lazy(() => import('@/features/auth/LoginPage'))
 const OrgDashboard = lazy(() => import('@/features/organisation/OrgDashboard'))
+const MemberDetail = lazy(() => import('@/features/organisation/MemberDetail'))
 
 function LazyFallback() {
   return (
@@ -198,6 +199,7 @@ export default function AppRouter() {
               <Route path="analytics" element={<AnalyticsPage />} />
               <Route path="login" element={<LoginPage />} />
               <Route path="org" element={<OrgDashboard />} />
+              <Route path="org/member/:memberId" element={<MemberDetail />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
