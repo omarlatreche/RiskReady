@@ -17,7 +17,7 @@ export default function Layout() {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, isGuest, loading: authLoading, init, signOut, org } = useAuthStore()
-  const navItems = !isGuest
+  const navItems = org?.role === 'admin'
     ? [...baseNavItems, { to: '/org', label: 'Organisation', icon: IconBuilding }]
     : baseNavItems
   const [darkMode, setDarkMode] = useState(() => {
