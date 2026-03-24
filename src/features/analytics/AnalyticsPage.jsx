@@ -75,28 +75,32 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-surface-800 dark:text-surface-100">Analytics</h1>
-          <p className="text-surface-500 dark:text-surface-400 mt-1">
-            Track your progress and identify areas for improvement.
-          </p>
-        </div>
-        <div className="flex gap-2 shrink-0">
-          <button
-            onClick={handleExportProgress}
-            className="px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 text-xs font-medium text-surface-600 dark:text-surface-400 hover:bg-surface-50 dark:hover:bg-surface-800 hover:border-surface-300 transition-all duration-150 flex items-center gap-1.5"
-          >
-            <IconExport className="w-3.5 h-3.5" />
-            Progress Report
-          </button>
-          <button
-            onClick={handleExportQuestions}
-            className="px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 text-xs font-medium text-surface-600 dark:text-surface-400 hover:bg-surface-50 dark:hover:bg-surface-800 hover:border-surface-300 transition-all duration-150 flex items-center gap-1.5"
-          >
-            <IconExport className="w-3.5 h-3.5" />
-            Question Analysis
-          </button>
+      <div>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-surface-800 dark:text-surface-100">Analytics</h1>
+            <p className="text-surface-500 dark:text-surface-400 mt-1 hidden sm:block">
+              Track your progress and identify areas for improvement.
+            </p>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <button
+              onClick={handleExportProgress}
+              className="px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 text-xs font-medium text-surface-600 dark:text-surface-400 hover:bg-surface-50 dark:hover:bg-surface-800 hover:border-surface-300 transition-all duration-150 flex items-center gap-1.5"
+            >
+              <IconExport className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Progress Report</span>
+              <span className="sm:hidden">Report</span>
+            </button>
+            <button
+              onClick={handleExportQuestions}
+              className="px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 text-xs font-medium text-surface-600 dark:text-surface-400 hover:bg-surface-50 dark:hover:bg-surface-800 hover:border-surface-300 transition-all duration-150 flex items-center gap-1.5"
+            >
+              <IconExport className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Question Analysis</span>
+              <span className="sm:hidden">Analysis</span>
+            </button>
+          </div>
         </div>
       </div>
 

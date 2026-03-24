@@ -134,6 +134,7 @@ export const useQuizStore = create((set, get) => ({
     const { currentIndex, questions } = get()
     if (currentIndex < questions.length - 1) {
       set({ currentIndex: currentIndex + 1 })
+      window.scrollTo({ top: 0, behavior: 'instant' })
     }
   },
 
@@ -141,6 +142,7 @@ export const useQuizStore = create((set, get) => ({
     const { currentIndex } = get()
     if (currentIndex > 0) {
       set({ currentIndex: currentIndex - 1 })
+      window.scrollTo({ top: 0, behavior: 'instant' })
     }
   },
 

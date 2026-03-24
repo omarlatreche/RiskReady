@@ -29,7 +29,7 @@ export default function ReadinessGauge({ score, breakdown }) {
     <div className="bg-white dark:bg-surface-900 rounded-xl border border-surface-200/60 dark:border-surface-800/80 shadow-sm shadow-surface-900/[0.03] p-6">
       <h2 className="font-semibold tracking-tight text-surface-800 dark:text-surface-100 mb-4">Exam Readiness</h2>
 
-      <div className="flex items-center gap-8 lg:gap-12">
+      <div className="flex flex-col items-center sm:flex-row sm:items-center gap-4 sm:gap-8 lg:gap-12">
         {/* SVG Gauge */}
         <div className="shrink-0">
           <svg width={size} height={size / 2 + 16} viewBox={`0 0 ${size} ${size / 2 + 16}`}>
@@ -76,7 +76,7 @@ export default function ReadinessGauge({ score, breakdown }) {
         </div>
 
         {/* Breakdown */}
-        <div className="flex-1 grid grid-cols-2 gap-x-6 gap-y-3">
+        <div className="w-full grid grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-3">
           <BreakdownItem label="Mock Average" value={breakdown.mockComponent} weight="35%" />
           <BreakdownItem label="Coverage" value={breakdown.coverageComponent} weight="25%" />
           <BreakdownItem label="Weakest Area" value={breakdown.weakestComponent} weight="20%" />
