@@ -261,7 +261,7 @@ export const remoteApi = {
     if (error || !data) {
       return { displayName: 'User', isGuest: false }
     }
-    return { displayName: data.display_name, isGuest: false }
+    return { ...toCamel(data), isGuest: false }
   },
 
   async setProfile(profile) {
