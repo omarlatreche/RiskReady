@@ -129,10 +129,18 @@ export const remoteApi = {
     return data.map(toCamel)
   },
 
+  async saveResponse(response) {
+    const row = { ...toSnake(response), user_id: uid(), org_id: orgId() || null }
+    if (typeof row.answered_at === 'number') {
+      row.answered_at = new Date(row.answered_at).toISOString()
+    }
+    const { error } = await supabase.from('responses').insert(row)
+    if (error) console.error('saveResponse error:', error.message || error)
+  },
+
   async saveResponses(responses) {
     const rows = responses.map((r) => {
       const row = { ...toSnake(r), user_id: uid(), org_id: orgId() || null }
-      // answeredAt may be epoch ms (from Date.now()) — convert to ISO string
       if (typeof row.answered_at === 'number') {
         row.answered_at = new Date(row.answered_at).toISOString()
       }

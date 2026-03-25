@@ -10,7 +10,11 @@ const tooltipStyle = {
   fontSize: '12px',
   padding: '10px 14px',
   boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+  color: '#fff',
 }
+
+const tooltipItemStyle = { color: '#fff' }
+const tooltipLabelStyle = { color: 'rgba(255,255,255,0.6)', fontSize: '11px', marginBottom: '2px' }
 
 function getBarColor(value) {
   if (value >= 65) return '#0d9470'
@@ -57,13 +61,15 @@ export function ChapterAccuracyChart({ data }) {
         <ReferenceLine y={65} stroke="#dc2626" strokeDasharray="4 4" strokeWidth={1} opacity={0.5} label={{ value: 'Pass', position: 'right', fontSize: 9, fill: '#dc2626', opacity: 0.7 }} />
         <Tooltip
           contentStyle={tooltipStyle}
+          itemStyle={tooltipItemStyle}
+          labelStyle={tooltipLabelStyle}
           cursor={{ fill: 'var(--color-surface-100, #f5f5f5)', opacity: 0.3 }}
           formatter={(value, name, props) => {
             const { correct, total } = props.payload
             if (total > 0) {
-              return [`${value}% (${correct}/${total})`, 'Accuracy']
+              return [`${value}% (${correct}/${total})`, null]
             }
-            return [`${value}%`, 'Accuracy']
+            return [`${value}%`, null]
           }}
         />
         <Bar dataKey="accuracy" radius={[6, 6, 0, 0]} animationDuration={800}>
@@ -112,9 +118,11 @@ export function ScoreHistoryChart({ data }) {
         <ReferenceLine y={65} stroke="#dc2626" strokeDasharray="4 4" strokeWidth={1} opacity={0.5} label={{ value: '65% pass', position: 'right', fontSize: 9, fill: '#dc2626', opacity: 0.7 }} />
         <Tooltip
           contentStyle={tooltipStyle}
+          itemStyle={tooltipItemStyle}
+          labelStyle={tooltipLabelStyle}
           formatter={(value, name) => {
             if (name === 'Pass Mark (65%)') return null
-            return [`${value}%`, 'Score']
+            return [`${value}%`, null]
           }}
         />
         <Area

@@ -5,13 +5,16 @@ import { api } from '@/lib/api'
 import { calculateScore } from '@/lib/scoring'
 import { loadAllQuestions } from '@/data/questions/loader'
 import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/store/useAuthStore'
 
 export default function PracticePage() {
   const navigate = useNavigate()
   const [chapterStats, setChapterStats] = useState({})
   const [questionCounts, setQuestionCounts] = useState({})
+  const authLoading = useAuthStore((s) => s.loading)
 
   useEffect(() => {
+    if (authLoading) return
     async function loadData() {
       const responses = await Promise.resolve(api.getResponses())
       const { byChapter } = calculateScore(responses)
@@ -26,7 +29,7 @@ export default function PracticePage() {
       }
       setQuestionCounts(counts)
     })
-  }, [])
+  }, [authLoading])
 
   return (
     <div className="space-y-8">

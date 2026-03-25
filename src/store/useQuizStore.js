@@ -109,12 +109,26 @@ export const useQuizStore = create((set, get) => ({
     })
 
     // Fire-and-forget review queue calls (works for both sync and async)
-    const { mode } = get()
+    const { mode, attemptId } = get()
     if ((mode === 'practice' || mode === 'mock') && !correct) {
       void Promise.resolve(api.addToReviewQueue(questionId, question.chapter))
     }
     if (mode === 'review' && correct) {
       void Promise.resolve(api.removeFromReviewQueue(questionId))
+    }
+
+    // In practice mode, save each response immediately so progress persists
+    // even if the user navigates away without finishing all questions
+    if (mode === 'practice') {
+      void Promise.resolve(api.saveResponse({
+        questionId,
+        chapter: question.chapter,
+        answer,
+        correct,
+        confidence,
+        answeredAt: Date.now(),
+        attemptId,
+      }))
     }
   },
 
@@ -193,12 +207,16 @@ export const useQuizStore = create((set, get) => ({
       questionIds: questions.map((q) => q.id),
     }))
 
-    await Promise.resolve(api.saveResponses(
-      responseList.map((r) => ({
-        ...r,
-        attemptId,
-      }))
-    ))
+    // In practice mode, responses are saved individually as they're answered
+    // (in answerQuestion), so skip the bulk save to avoid duplicates
+    if (mode !== 'practice') {
+      await Promise.resolve(api.saveResponses(
+        responseList.map((r) => ({
+          ...r,
+          attemptId,
+        }))
+      ))
+    }
 
     // Update streak (fire-and-forget)
     void Promise.resolve(api.updateStreak())

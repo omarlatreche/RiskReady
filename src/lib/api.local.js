@@ -41,9 +41,26 @@ export const localApi = {
     return this.getResponses().filter((r) => r.attemptId === attemptId)
   },
 
+  saveResponse(response) {
+    const existing = this.getResponses()
+    // Replace if same questionId already exists (re-answer), otherwise append
+    const idx = existing.findIndex((r) => r.questionId === response.questionId)
+    if (idx >= 0) {
+      existing[idx] = response
+    } else {
+      existing.push(response)
+    }
+    setStore(STORAGE_KEYS.RESPONSES, existing)
+  },
+
   saveResponses(responses) {
     const existing = this.getResponses()
-    setStore(STORAGE_KEYS.RESPONSES, [...existing, ...responses])
+    // Deduplicate by questionId — newer responses win
+    const map = new Map(existing.map((r) => [r.questionId, r]))
+    for (const r of responses) {
+      map.set(r.questionId, r)
+    }
+    setStore(STORAGE_KEYS.RESPONSES, [...map.values()])
   },
 
   // Review Queue

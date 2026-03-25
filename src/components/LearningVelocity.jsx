@@ -59,8 +59,11 @@ export default function LearningVelocity({ responses }) {
               fontSize: '12px',
               padding: '8px 12px',
               boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+              color: '#fff',
             }}
-            formatter={(value) => [`${value} questions`, 'Answered']}
+            itemStyle={{ color: '#fff' }}
+            labelStyle={{ color: 'rgba(255,255,255,0.6)', fontSize: '11px', marginBottom: '2px' }}
+            formatter={(value) => [`${value} questions`, null]}
             cursor={{ fill: 'var(--color-surface-100, #f5f5f5)', opacity: 0.2 }}
           />
           <Bar dataKey="count" radius={[4, 4, 0, 0]} animationDuration={600}>
