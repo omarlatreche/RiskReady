@@ -24,8 +24,9 @@ const teamFeatures = [
 ]
 
 export default function PricingPage() {
-  const { user, trialDaysLeft, trialExpired } = useAuthStore()
+  const { user, trialDaysLeft, trialExpired, org } = useAuthStore()
   const isOnTrial = user && trialDaysLeft != null
+  const isOnTeamPlan = user && !!org
   const [form, setForm] = useState({ companyName: '', contactName: '', email: '', teamSize: '', message: '' })
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -53,9 +54,11 @@ export default function PricingPage() {
           Prepare your team for <span className="text-primary-600 dark:text-primary-400">CII GR1</span>
         </h1>
         <p className="text-surface-500 dark:text-surface-400 mt-3 text-lg">
-          {isOnTrial
-            ? 'Upgrade to a team plan to keep your access and unlock organisation-wide features.'
-            : 'Start with a free 7-day trial, then talk to us about plans for your team.'}
+          {isOnTeamPlan
+            ? 'Your organisation is set up. Need to add more seats or have questions? Get in touch.'
+            : isOnTrial
+              ? 'Upgrade to a team plan to keep your access and unlock organisation-wide features.'
+              : 'Start with a free 7-day trial, then talk to us about plans for your team.'}
         </p>
       </div>
 
@@ -68,7 +71,14 @@ export default function PricingPage() {
             <h2 className="text-lg font-semibold text-surface-800 dark:text-surface-100">Individual</h2>
           </div>
           <p className="text-surface-500 dark:text-surface-400 text-sm mb-6">For self-study candidates</p>
-          {isOnTrial ? (
+          {isOnTeamPlan ? (
+            <>
+              <p className="text-3xl font-bold text-surface-800 dark:text-surface-100 mb-1">
+                Free for 7 days
+              </p>
+              <p className="text-sm text-surface-400 dark:text-surface-500 mb-6">For individual users</p>
+            </>
+          ) : isOnTrial ? (
             <>
               <p className="text-3xl font-bold text-surface-800 dark:text-surface-100 mb-1">
                 {trialExpired ? 'Trial ended' : `${trialDaysLeft} ${trialDaysLeft === 1 ? 'day' : 'days'} left`}
@@ -93,9 +103,9 @@ export default function PricingPage() {
               </li>
             ))}
           </ul>
-          {isOnTrial ? (
+          {isOnTrial || isOnTeamPlan ? (
             <div className="mt-8 block w-full text-center py-2.5 px-4 rounded-lg bg-surface-100 dark:bg-surface-800 text-sm font-medium text-surface-500 dark:text-surface-400">
-              Your current plan
+              {isOnTeamPlan ? 'Included in your team plan' : 'Your current plan'}
             </div>
           ) : (
             <Link
@@ -129,12 +139,18 @@ export default function PricingPage() {
               </li>
             ))}
           </ul>
-          <a
-            href="#contact"
-            className="mt-8 block w-full text-center py-2.5 px-4 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium transition-colors"
-          >
-            Get in touch
-          </a>
+          {isOnTeamPlan ? (
+            <div className="mt-8 block w-full text-center py-2.5 px-4 rounded-lg bg-primary-50 dark:bg-primary-500/10 border border-primary-200 dark:border-primary-500/20 text-sm font-medium text-primary-700 dark:text-primary-400">
+              Your current plan
+            </div>
+          ) : (
+            <a
+              href="#contact"
+              className="mt-8 block w-full text-center py-2.5 px-4 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium transition-colors"
+            >
+              Get in touch
+            </a>
+          )}
         </div>
       </div>
 
