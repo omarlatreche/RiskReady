@@ -43,7 +43,7 @@ export default function MemberDetail() {
   const { attempts, score } = data
   const chapterList = chapters.map((ch) => {
     const chData = score.byChapter[ch.id]
-    return chData ? { id: ch.id, name: ch.name, ...chData } : null
+    return chData ? { id: ch.id, name: `Ch ${ch.number}: ${ch.title}`, ...chData } : null
   }).filter(Boolean)
 
   return (
