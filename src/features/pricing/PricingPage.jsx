@@ -50,7 +50,7 @@ export default function PricingPage() {
           Prepare your team for <span className="text-primary-600 dark:text-primary-400">CII GR1</span>
         </h1>
         <p className="text-surface-500 dark:text-surface-400 mt-3 text-lg">
-          Give your group risk professionals the tools to pass first time. Individual study is free — add team management when you're ready.
+          Give your group risk professionals the tools to pass first time. Try it free for 7 days, then talk to us about team plans.
         </p>
       </div>
 
@@ -63,9 +63,10 @@ export default function PricingPage() {
             <h2 className="text-lg font-semibold text-surface-800 dark:text-surface-100">Individual</h2>
           </div>
           <p className="text-surface-500 dark:text-surface-400 text-sm mb-6">For self-study candidates</p>
-          <p className="text-3xl font-bold text-surface-800 dark:text-surface-100 mb-6">
-            Free
+          <p className="text-3xl font-bold text-surface-800 dark:text-surface-100 mb-1">
+            Free for 7 days
           </p>
+          <p className="text-sm text-surface-400 dark:text-surface-500 mb-6">No credit card required</p>
           <ul className="space-y-3">
             {individualFeatures.map((f) => (
               <li key={f} className="flex items-start gap-2.5 text-sm text-surface-600 dark:text-surface-400">
@@ -78,7 +79,7 @@ export default function PricingPage() {
             to="/login"
             className="mt-8 block w-full text-center py-2.5 px-4 rounded-lg border border-surface-200 dark:border-surface-700 text-sm font-medium text-surface-700 dark:text-surface-300 hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors"
           >
-            Get started free
+            Start free trial
           </Link>
         </div>
 
