@@ -31,11 +31,20 @@ function checkTrialExpired(profile, org) {
   return new Date(profile.trialEndsAt) < new Date()
 }
 
+function getTrialDaysLeft(user, org) {
+  if (org) return null
+  if (!user?.trialEndsAt) return null
+  const ms = new Date(user.trialEndsAt) - new Date()
+  if (ms <= 0) return 0
+  return Math.ceil(ms / (1000 * 60 * 60 * 24))
+}
+
 export const useAuthStore = create((set, get) => ({
   user: null,
   loading: true,
   org: null,
   trialExpired: false,
+  trialDaysLeft: null,
   error: null,
 
   async init() {
@@ -50,15 +59,17 @@ export const useAuthStore = create((set, get) => ({
       activateRemote(session.user.id)
       const [profile, org] = await Promise.all([api.getProfile(), fetchOrgProfile()])
       if (org) setRemoteOrgId(org.id)
+      const user = { ...profile, email: session.user.email }
       set({
-        user: { ...profile, email: session.user.email },
+        user,
         org,
         trialExpired: checkTrialExpired(profile, org),
+        trialDaysLeft: getTrialDaysLeft(user, org),
         loading: false,
       })
     } else {
       deactivateRemote()
-      set({ user: null, loading: false })
+      set({ user: null, trialDaysLeft: null, loading: false })
     }
 
     // Listen for auth changes (sign in/out from other tabs, token refresh)
@@ -67,14 +78,16 @@ export const useAuthStore = create((set, get) => ({
         activateRemote(session.user.id)
         const [profile, org] = await Promise.all([api.getProfile(), fetchOrgProfile()])
         if (org) setRemoteOrgId(org.id)
+        const user = { ...profile, email: session.user.email }
         set({
-          user: { ...profile, email: session.user.email },
+          user,
           org,
           trialExpired: checkTrialExpired(profile, org),
+          trialDaysLeft: getTrialDaysLeft(user, org),
         })
       } else {
         deactivateRemote()
-        set({ user: null, org: null, trialExpired: false })
+        set({ user: null, org: null, trialExpired: false, trialDaysLeft: null })
       }
     })
   },
@@ -101,10 +114,12 @@ export const useAuthStore = create((set, get) => ({
       await migrateLocalDataToSupabase()
       const [profile, org] = await Promise.all([api.getProfile(), fetchOrgProfile()])
       if (org) setRemoteOrgId(org.id)
+      const signUpUser = { ...profile, email: data.user.email }
       set({
-        user: { ...profile, email: data.user.email },
+        user: signUpUser,
         org,
         trialExpired: checkTrialExpired(profile, org),
+        trialDaysLeft: getTrialDaysLeft(signUpUser, org),
         loading: false,
         error: null,
       })
@@ -130,10 +145,12 @@ export const useAuthStore = create((set, get) => ({
       await migrateLocalDataToSupabase()
       const [profile, org] = await Promise.all([api.getProfile(), fetchOrgProfile()])
       if (org) setRemoteOrgId(org.id)
+      const signInUser = { ...profile, email: data.user.email }
       set({
-        user: { ...profile, email: data.user.email },
+        user: signInUser,
         org,
         trialExpired: checkTrialExpired(profile, org),
+        trialDaysLeft: getTrialDaysLeft(signInUser, org),
         loading: false,
         error: null,
       })
@@ -145,7 +162,7 @@ export const useAuthStore = create((set, get) => ({
       await supabase.auth.signOut()
     }
     deactivateRemote()
-    set({ user: null, org: null, trialExpired: false, error: null })
+    set({ user: null, org: null, trialExpired: false, trialDaysLeft: null, error: null })
   },
 
   async setDisplayName(name) {
@@ -158,8 +175,8 @@ export const useAuthStore = create((set, get) => ({
   async refreshOrg() {
     const org = await fetchOrgProfile()
     if (org) setRemoteOrgId(org.id)
-    const profile = get().user
-    set({ org, trialExpired: checkTrialExpired(profile, org) })
+    const user = get().user
+    set({ org, trialExpired: checkTrialExpired(user, org), trialDaysLeft: getTrialDaysLeft(user, org) })
   },
 
   clearError() {

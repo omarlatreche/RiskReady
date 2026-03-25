@@ -128,9 +128,9 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs text-surface-400 dark:text-surface-500">
-          Looking for team pricing?{' '}
+          Preparing a team?{' '}
           <Link to="/pricing" className="text-primary-600 dark:text-primary-400 font-medium hover:underline">
-            See plans
+            Learn about organisation plans
           </Link>
         </p>
       </div>

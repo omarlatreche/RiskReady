@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '@/lib/api'
+import { useAuthStore } from '@/store/useAuthStore'
 import { IconCheck, IconUsers, IconBarChart, IconBuilding } from '@/components/Icons'
 
 const individualFeatures = [
@@ -23,6 +24,8 @@ const teamFeatures = [
 ]
 
 export default function PricingPage() {
+  const { user, trialDaysLeft, trialExpired } = useAuthStore()
+  const isOnTrial = user && trialDaysLeft != null
   const [form, setForm] = useState({ companyName: '', contactName: '', email: '', teamSize: '', message: '' })
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -50,7 +53,9 @@ export default function PricingPage() {
           Prepare your team for <span className="text-primary-600 dark:text-primary-400">CII GR1</span>
         </h1>
         <p className="text-surface-500 dark:text-surface-400 mt-3 text-lg">
-          Give your group risk professionals the tools to pass first time. Try it free for 7 days, then talk to us about team plans.
+          {isOnTrial
+            ? 'Upgrade to a team plan to keep your access and unlock organisation-wide features.'
+            : 'Start with a free 7-day trial, then talk to us about plans for your team.'}
         </p>
       </div>
 
@@ -63,10 +68,23 @@ export default function PricingPage() {
             <h2 className="text-lg font-semibold text-surface-800 dark:text-surface-100">Individual</h2>
           </div>
           <p className="text-surface-500 dark:text-surface-400 text-sm mb-6">For self-study candidates</p>
-          <p className="text-3xl font-bold text-surface-800 dark:text-surface-100 mb-1">
-            Free for 7 days
-          </p>
-          <p className="text-sm text-surface-400 dark:text-surface-500 mb-6">No credit card required</p>
+          {isOnTrial ? (
+            <>
+              <p className="text-3xl font-bold text-surface-800 dark:text-surface-100 mb-1">
+                {trialExpired ? 'Trial ended' : `${trialDaysLeft} ${trialDaysLeft === 1 ? 'day' : 'days'} left`}
+              </p>
+              <p className="text-sm text-surface-400 dark:text-surface-500 mb-6">
+                {trialExpired ? 'Your free trial has expired' : 'on your free trial'}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-3xl font-bold text-surface-800 dark:text-surface-100 mb-1">
+                Free for 7 days
+              </p>
+              <p className="text-sm text-surface-400 dark:text-surface-500 mb-6">No credit card required</p>
+            </>
+          )}
           <ul className="space-y-3">
             {individualFeatures.map((f) => (
               <li key={f} className="flex items-start gap-2.5 text-sm text-surface-600 dark:text-surface-400">
@@ -75,12 +93,18 @@ export default function PricingPage() {
               </li>
             ))}
           </ul>
-          <Link
-            to="/login"
-            className="mt-8 block w-full text-center py-2.5 px-4 rounded-lg border border-surface-200 dark:border-surface-700 text-sm font-medium text-surface-700 dark:text-surface-300 hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors"
-          >
-            Start free trial
-          </Link>
+          {isOnTrial ? (
+            <div className="mt-8 block w-full text-center py-2.5 px-4 rounded-lg bg-surface-100 dark:bg-surface-800 text-sm font-medium text-surface-500 dark:text-surface-400">
+              Your current plan
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              className="mt-8 block w-full text-center py-2.5 px-4 rounded-lg border border-surface-200 dark:border-surface-700 text-sm font-medium text-surface-700 dark:text-surface-300 hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors"
+            >
+              Start free trial
+            </Link>
+          )}
         </div>
 
         {/* Teams */}
@@ -94,9 +118,9 @@ export default function PricingPage() {
           </div>
           <p className="text-surface-500 dark:text-surface-400 text-sm mb-6">For companies & training managers</p>
           <p className="text-3xl font-bold text-surface-800 dark:text-surface-100 mb-1">
-            Contact us
+            Custom pricing
           </p>
-          <p className="text-sm text-surface-400 dark:text-surface-500 mb-6">Per-seat pricing, billed annually</p>
+          <p className="text-sm text-surface-400 dark:text-surface-500 mb-6">Per-seat plans, tailored to your team</p>
           <ul className="space-y-3">
             {teamFeatures.map((f) => (
               <li key={f} className="flex items-start gap-2.5 text-sm text-surface-600 dark:text-surface-400">
@@ -109,7 +133,7 @@ export default function PricingPage() {
             href="#contact"
             className="mt-8 block w-full text-center py-2.5 px-4 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium transition-colors"
           >
-            Contact sales
+            Get in touch
           </a>
         </div>
       </div>

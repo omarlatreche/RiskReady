@@ -16,7 +16,7 @@ const baseNavItems = [
 export default function Layout() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { user, loading: authLoading, init, signOut, org } = useAuthStore()
+  const { user, loading: authLoading, init, signOut, org, trialDaysLeft } = useAuthStore()
   const navItems = org?.role === 'admin'
     ? [...baseNavItems, { to: '/org', label: 'Organisation', icon: IconBuilding }]
     : org
@@ -162,6 +162,21 @@ export default function Layout() {
 
         {/* Main content */}
         <main className="flex-1 min-h-screen lg:min-h-0 overflow-x-hidden">
+          {user && trialDaysLeft != null && trialDaysLeft > 0 && !location.pathname.startsWith('/pricing') && !location.pathname.startsWith('/trial-expired') && (
+            <div className="bg-primary-50/80 dark:bg-primary-500/8 border-b border-primary-200/40 dark:border-primary-500/10">
+              <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-10 py-2.5 flex items-center justify-between gap-4">
+                <p className="text-sm text-surface-600 dark:text-surface-400">
+                  <span className="font-medium text-surface-700 dark:text-surface-300">{trialDaysLeft} {trialDaysLeft === 1 ? 'day' : 'days'}</span> left on your free trial
+                </p>
+                <Link
+                  to="/pricing"
+                  className="shrink-0 text-xs font-medium px-3 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white transition-colors"
+                >
+                  Upgrade
+                </Link>
+              </div>
+            </div>
+          )}
           {location.pathname === '/' && (
             <div className="bg-gradient-to-br from-primary-100/60 via-primary-50/30 to-accent-400/10 dark:from-primary-500/10 dark:via-surface-900 dark:to-surface-950 border-b border-primary-200/30 dark:border-surface-800/60">
               <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-10 pt-8 lg:pt-12 pb-8">

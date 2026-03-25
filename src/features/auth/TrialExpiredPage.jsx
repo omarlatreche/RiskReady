@@ -29,7 +29,7 @@ export default function TrialExpiredPage() {
             to="/pricing#contact"
             className="block w-full py-3 rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-medium text-sm transition-colors"
           >
-            See plans & contact sales
+            See plans & get in touch
           </Link>
           <button
             onClick={async () => { await signOut(); navigate('/login') }}
