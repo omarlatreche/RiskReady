@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/useAuthStore'
 import { api } from '@/lib/api'
 import { cn } from '@/lib/utils'
-import { IconHome, IconBook, IconTarget, IconRefresh, IconBarChart, IconFlame, IconMenu, IconSun, IconMoon, IconLogOut, IconBuilding } from '@/components/Icons'
+import { IconHome, IconBook, IconTarget, IconRefresh, IconBarChart, IconFlame, IconMenu, IconSun, IconMoon, IconLogOut, IconBuilding, IconUsers } from '@/components/Icons'
 
 const baseNavItems = [
   { to: '/', label: 'Home', icon: IconHome },
@@ -16,10 +16,12 @@ const baseNavItems = [
 export default function Layout() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { user, isGuest, loading: authLoading, init, signOut, org } = useAuthStore()
+  const { user, loading: authLoading, init, signOut, org } = useAuthStore()
   const navItems = org?.role === 'admin'
     ? [...baseNavItems, { to: '/org', label: 'Organisation', icon: IconBuilding }]
-    : baseNavItems
+    : org
+      ? baseNavItems
+      : [...baseNavItems, { to: '/pricing', label: 'Teams', icon: IconUsers }]
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window === 'undefined') return false
     const stored = localStorage.getItem('riskready_theme')
@@ -41,7 +43,7 @@ export default function Layout() {
       setStreakData(data)
     }
     loadStreak()
-  }, [authLoading, isGuest])
+  }, [authLoading, user])
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode)
@@ -125,12 +127,12 @@ export default function Layout() {
                 <span>{streakData.currentStreak} day streak</span>
               </div>
             )}
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-surface-500 truncate">
-                {!isGuest ? (user?.email || user?.displayName || 'User') : 'Guest'}
-              </span>
-              <div className="flex items-center gap-1">
-                {!isGuest ? (
+            {user && (
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-surface-500 truncate">
+                  {user.email || user.displayName || 'User'}
+                </span>
+                <div className="flex items-center gap-1">
                   <button
                     onClick={async () => { await signOut(); navigate('/login') }}
                     title="Sign out"
@@ -138,23 +140,15 @@ export default function Layout() {
                   >
                     <IconLogOut className="w-4 h-4" />
                   </button>
-                ) : (
-                  <Link
-                    to="/login"
-                    onClick={() => setSidebarOpen(false)}
-                    className="text-xs text-primary-600 dark:text-primary-400 font-medium hover:underline"
+                  <button
+                    onClick={() => setDarkMode(!darkMode)}
+                    className="p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-500 dark:text-surface-400 transition-colors"
                   >
-                    Sign in
-                  </Link>
-                )}
-                <button
-                  onClick={() => setDarkMode(!darkMode)}
-                  className="p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-500 dark:text-surface-400 transition-colors"
-                >
-                  {darkMode ? <IconSun className="w-4 h-4" /> : <IconMoon className="w-4 h-4" />}
-                </button>
+                    {darkMode ? <IconSun className="w-4 h-4" /> : <IconMoon className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </aside>
 

@@ -23,18 +23,24 @@ async function fetchOrgProfile() {
   }
 }
 
+function checkTrialExpired(profile, org) {
+  // Org members never have a trial limit
+  if (org) return false
+  // No trial_ends_at means no limit (legacy or org member)
+  if (!profile?.trialEndsAt) return false
+  return new Date(profile.trialEndsAt) < new Date()
+}
+
 export const useAuthStore = create((set, get) => ({
   user: null,
-  isGuest: true,
   loading: true,
   org: null,
+  trialExpired: false,
   error: null,
 
   async init() {
     if (!isSupabaseConfigured()) {
-      // No Supabase — pure guest mode
-      const profile = api.getProfile()
-      set({ user: profile, isGuest: true, loading: false })
+      set({ user: null, loading: false })
       return
     }
 
@@ -46,14 +52,13 @@ export const useAuthStore = create((set, get) => ({
       if (org) setRemoteOrgId(org.id)
       set({
         user: { ...profile, email: session.user.email },
-        isGuest: false,
         org,
+        trialExpired: checkTrialExpired(profile, org),
         loading: false,
       })
     } else {
       deactivateRemote()
-      const profile = api.getProfile()
-      set({ user: profile, isGuest: true, loading: false })
+      set({ user: null, loading: false })
     }
 
     // Listen for auth changes (sign in/out from other tabs, token refresh)
@@ -64,13 +69,12 @@ export const useAuthStore = create((set, get) => ({
         if (org) setRemoteOrgId(org.id)
         set({
           user: { ...profile, email: session.user.email },
-          isGuest: false,
           org,
+          trialExpired: checkTrialExpired(profile, org),
         })
       } else {
         deactivateRemote()
-        const profile = api.getProfile()
-        set({ user: profile, isGuest: true, org: null })
+        set({ user: null, org: null, trialExpired: false })
       }
     })
   },
@@ -94,14 +98,13 @@ export const useAuthStore = create((set, get) => ({
 
     if (data.user) {
       activateRemote(data.user.id)
-      // Migrate any localStorage data to Supabase
       await migrateLocalDataToSupabase()
       const [profile, org] = await Promise.all([api.getProfile(), fetchOrgProfile()])
       if (org) setRemoteOrgId(org.id)
       set({
         user: { ...profile, email: data.user.email },
-        isGuest: false,
         org,
+        trialExpired: checkTrialExpired(profile, org),
         loading: false,
         error: null,
       })
@@ -124,14 +127,13 @@ export const useAuthStore = create((set, get) => ({
 
     if (data.user) {
       activateRemote(data.user.id)
-      // Migrate any localStorage data to Supabase
       await migrateLocalDataToSupabase()
       const [profile, org] = await Promise.all([api.getProfile(), fetchOrgProfile()])
       if (org) setRemoteOrgId(org.id)
       set({
         user: { ...profile, email: data.user.email },
-        isGuest: false,
         org,
+        trialExpired: checkTrialExpired(profile, org),
         loading: false,
         error: null,
       })
@@ -139,18 +141,11 @@ export const useAuthStore = create((set, get) => ({
   },
 
   async signOut() {
-    if (isSupabaseConfigured() && !get().isGuest) {
+    if (isSupabaseConfigured()) {
       await supabase.auth.signOut()
     }
     deactivateRemote()
-    set({ user: null, isGuest: true, org: null, error: null })
-  },
-
-  continueAsGuest() {
-    deactivateRemote()
-    const profile = { displayName: 'Guest', isGuest: true }
-    api.setProfile(profile)
-    set({ user: profile, isGuest: true, error: null })
+    set({ user: null, org: null, trialExpired: false, error: null })
   },
 
   async setDisplayName(name) {
@@ -163,7 +158,8 @@ export const useAuthStore = create((set, get) => ({
   async refreshOrg() {
     const org = await fetchOrgProfile()
     if (org) setRemoteOrgId(org.id)
-    set({ org })
+    const profile = get().user
+    set({ org, trialExpired: checkTrialExpired(profile, org) })
   },
 
   clearError() {

@@ -151,6 +151,11 @@ export const localApi = {
     setStore(STORAGE_KEYS.PROFILE, profile)
   },
 
+  // Sales Leads (stub — guest users can still submit the form)
+  submitSalesLead() {
+    return Promise.resolve()
+  },
+
   // Clear all data
   clearAll() {
     Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key))

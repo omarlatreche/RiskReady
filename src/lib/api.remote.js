@@ -79,6 +79,7 @@ function toCamel(obj) {
     max_seats: 'maxSeats',
     created_by: 'createdBy',
     invited_by: 'invitedBy',
+    trial_ends_at: 'trialEndsAt',
   }
   const result = {}
   for (const [k, v] of Object.entries(obj)) {
@@ -371,5 +372,20 @@ export const remoteApi = {
       .update({ org_id: null, role: 'user', updated_at: new Date().toISOString() })
       .eq('id', userId)
     if (error) console.error('removeMember error:', error.message || error)
+  },
+
+  // Sales Leads
+  async submitSalesLead({ companyName, contactName, email, teamSize, message }) {
+    const { error } = await supabase.from('sales_leads').insert({
+      company_name: companyName,
+      contact_name: contactName,
+      email,
+      team_size: teamSize,
+      message: message || null,
+    })
+    if (error) {
+      console.error('submitSalesLead error:', error.message || error)
+      throw error
+    }
   },
 }

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAnalyticsStore } from '@/store/useAnalyticsStore'
+import { useAuthStore } from '@/store/useAuthStore'
 import { ChapterAccuracyChart, ScoreHistoryChart } from '@/components/Chart'
 import ReadinessGauge from '@/components/ReadinessGauge'
 import DifficultyHeatmap from '@/components/DifficultyHeatmap'
@@ -7,7 +9,7 @@ import LearningVelocity from '@/components/LearningVelocity'
 import chapters from '@/data/chapters.json'
 import { api } from '@/lib/api'
 import { cn, formatDate } from '@/lib/utils'
-import { IconExport } from '@/components/Icons'
+import { IconExport, IconUsers } from '@/components/Icons'
 
 export default function AnalyticsPage() {
   const {
@@ -15,6 +17,7 @@ export default function AnalyticsPage() {
     overconfidentChapters, confidenceMatrix, readinessScore, responses,
     getAverageScore, getTotalQuestionsAnswered, getPassRate, getMockAttempts,
   } = useAnalyticsStore()
+  const org = useAuthStore((s) => s.org)
 
   const [allQuestions, setAllQuestions] = useState([])
 
@@ -116,6 +119,20 @@ export default function AnalyticsPage() {
         <StatCard label="Pass Rate" value={`${passRate}%`} highlight={passRate >= 50} accent="border-l-success-500" />
         <StatCard label="Questions Answered" value={totalAnswered} accent="border-l-surface-400" />
       </div>
+
+      {!org && (
+        <Link
+          to="/pricing"
+          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary-50/60 dark:bg-primary-500/5 border border-primary-200/40 dark:border-primary-500/10 hover:bg-primary-50 dark:hover:bg-primary-500/10 transition-colors group"
+        >
+          <IconUsers className="w-5 h-5 text-primary-500 shrink-0" />
+          <p className="text-sm text-surface-600 dark:text-surface-400">
+            <span className="font-medium text-surface-700 dark:text-surface-300">Need team-wide analytics?</span>{' '}
+            See what Teams can do for your organisation.
+          </p>
+          <span className="ml-auto text-primary-500 group-hover:translate-x-0.5 transition-transform shrink-0">&rarr;</span>
+        </Link>
+      )}
 
       {/* Learning velocity */}
       {responses.length > 0 && (

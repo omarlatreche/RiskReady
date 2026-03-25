@@ -296,7 +296,7 @@ function MembersTab({ members, invites, onInvite, onRevokeInvite, onRemoveMember
 
 export default function OrgDashboard() {
   const navigate = useNavigate()
-  const { org, isGuest, loading: authLoading } = useAuthStore()
+  const { org, loading: authLoading } = useAuthStore()
   const { members, invites, stats, loading, loadDashboard, inviteMember, revokeInvite, removeMember } = useOrgStore()
   const [activeTab, setActiveTab] = useState('overview')
 
@@ -307,10 +307,9 @@ export default function OrgDashboard() {
   }, [org])
 
   useEffect(() => {
-    if (authLoading) return // Wait for auth to finish before redirecting
-    if (isGuest) navigate('/login')
-    else if (org && org.role !== 'admin') navigate('/')
-  }, [authLoading, isGuest, org, navigate])
+    if (authLoading) return
+    if (org && org.role !== 'admin') navigate('/')
+  }, [authLoading, org, navigate])
 
   // Still loading auth — show spinner
   if (authLoading) {
@@ -321,8 +320,8 @@ export default function OrgDashboard() {
     )
   }
 
-  // Not authenticated or not admin — redirecting
-  if (isGuest || (org && org.role !== 'admin')) return null
+  // Not admin — redirecting
+  if (org && org.role !== 'admin') return null
 
   // No org — show contact message
   if (!org) {

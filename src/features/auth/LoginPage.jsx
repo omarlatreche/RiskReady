@@ -1,22 +1,17 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/useAuthStore'
 import { isSupabaseConfigured } from '@/lib/supabase'
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { continueAsGuest, signIn, signUp, loading, error, clearError } = useAuthStore()
+  const { signIn, signUp, loading, error, clearError } = useAuthStore()
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [displayName, setDisplayName] = useState('')
 
   const supabaseReady = isSupabaseConfigured()
-
-  const handleGuestLogin = () => {
-    continueAsGuest()
-    navigate('/')
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -119,32 +114,25 @@ export default function LoginPage() {
             </p>
           )}
 
+          {isSignUp && (
+            <p className="text-xs text-center text-surface-400 dark:text-surface-500">
+              Start your free 7-day trial. No credit card required.
+            </p>
+          )}
+
           {!supabaseReady && (
             <p className="text-xs text-center text-surface-400 dark:text-surface-500">
               Cloud sync is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable.
             </p>
           )}
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-surface-200 dark:border-surface-700" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-white dark:bg-surface-900 px-4 text-surface-500">or</span>
-            </div>
-          </div>
-
-          <button
-            onClick={handleGuestLogin}
-            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold text-sm shadow-md shadow-primary-900/20 hover:from-primary-700 hover:to-primary-800 active:translate-y-px transition-all duration-150"
-          >
-            Continue as Guest
-          </button>
-
-          <p className="text-xs text-center text-surface-500 dark:text-surface-400">
-            Guest mode saves your progress locally on this device.
-          </p>
         </div>
+
+        <p className="text-center text-xs text-surface-400 dark:text-surface-500">
+          Looking for team pricing?{' '}
+          <Link to="/pricing" className="text-primary-600 dark:text-primary-400 font-medium hover:underline">
+            See plans
+          </Link>
+        </p>
       </div>
     </div>
   )

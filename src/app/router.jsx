@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link, Navigate, Outlet } from 'react-router-dom'
 import Layout from './layout'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { IconBook, IconTarget, IconRefresh, IconBarChart } from '@/components/Icons'
@@ -14,8 +14,10 @@ const MockResultsPage = lazy(() => import('@/features/mock/MockResultsPage'))
 const ReviewPage = lazy(() => import('@/features/review/ReviewPage'))
 const AnalyticsPage = lazy(() => import('@/features/analytics/AnalyticsPage'))
 const LoginPage = lazy(() => import('@/features/auth/LoginPage'))
+const TrialExpiredPage = lazy(() => import('@/features/auth/TrialExpiredPage'))
 const OrgDashboard = lazy(() => import('@/features/organisation/OrgDashboard'))
 const MemberDetail = lazy(() => import('@/features/organisation/MemberDetail'))
+const PricingPage = lazy(() => import('@/features/pricing/PricingPage'))
 
 function LazyFallback() {
   return (
@@ -25,12 +27,20 @@ function LazyFallback() {
   )
 }
 
+function ProtectedRoute() {
+  const { user, loading, trialExpired } = useAuthStore()
+  if (loading) return <LazyFallback />
+  if (!user) return <Navigate to="/login" replace />
+  if (trialExpired) return <Navigate to="/trial-expired" replace />
+  return <Outlet />
+}
+
 function DashboardPage() {
   const [attempts, setAttempts] = useState([])
   const [streakData, setStreakData] = useState({ currentStreak: 0, longestStreak: 0 })
   const [responses, setResponses] = useState([])
   const [reviewCount, setReviewCount] = useState(0)
-  const { loading: authLoading, isGuest } = useAuthStore()
+  const { loading: authLoading } = useAuthStore()
 
   useEffect(() => {
     if (authLoading) return
@@ -47,7 +57,7 @@ function DashboardPage() {
       setReviewCount(queue.filter((q) => !q.resolved).length)
     }
     load()
-  }, [authLoading, isGuest])
+  }, [authLoading])
 
   return (
     <div className="space-y-8">
@@ -190,16 +200,22 @@ export default function AppRouter() {
         <Suspense fallback={<LazyFallback />}>
           <Routes>
             <Route element={<Layout />}>
-              <Route index element={<DashboardPage />} />
-              <Route path="practice" element={<PracticePage />} />
-              <Route path="practice/:chapterId" element={<PracticeSession />} />
-              <Route path="mock" element={<MockPage />} />
-              <Route path="mock/results/:attemptId" element={<MockResultsPage />} />
-              <Route path="review" element={<ReviewPage />} />
-              <Route path="analytics" element={<AnalyticsPage />} />
+              {/* Public routes */}
               <Route path="login" element={<LoginPage />} />
-              <Route path="org" element={<OrgDashboard />} />
-              <Route path="org/member/:memberId" element={<MemberDetail />} />
+              <Route path="pricing" element={<PricingPage />} />
+              <Route path="trial-expired" element={<TrialExpiredPage />} />
+              {/* Protected routes */}
+              <Route element={<ProtectedRoute />}>
+                <Route index element={<DashboardPage />} />
+                <Route path="practice" element={<PracticePage />} />
+                <Route path="practice/:chapterId" element={<PracticeSession />} />
+                <Route path="mock" element={<MockPage />} />
+                <Route path="mock/results/:attemptId" element={<MockResultsPage />} />
+                <Route path="review" element={<ReviewPage />} />
+                <Route path="analytics" element={<AnalyticsPage />} />
+                <Route path="org" element={<OrgDashboard />} />
+                <Route path="org/member/:memberId" element={<MemberDetail />} />
+              </Route>
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
