@@ -23,10 +23,10 @@ export default function LoginPage() {
       await signIn(email, password)
     }
 
-    // If no error after auth, navigate home
+    // If no error after auth, navigate to welcome (new signup) or home (existing user)
     const { error: authError } = useAuthStore.getState()
     if (!authError) {
-      navigate('/')
+      navigate(isSignUp ? '/welcome' : '/')
     }
   }
 

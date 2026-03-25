@@ -18,6 +18,7 @@ const TrialExpiredPage = lazy(() => import('@/features/auth/TrialExpiredPage'))
 const OrgDashboard = lazy(() => import('@/features/organisation/OrgDashboard'))
 const MemberDetail = lazy(() => import('@/features/organisation/MemberDetail'))
 const PricingPage = lazy(() => import('@/features/pricing/PricingPage'))
+const WelcomePage = lazy(() => import('@/features/auth/WelcomePage'))
 
 function LazyFallback() {
   return (
@@ -215,6 +216,7 @@ export default function AppRouter() {
                 <Route path="analytics" element={<AnalyticsPage />} />
                 <Route path="org" element={<OrgDashboard />} />
                 <Route path="org/member/:memberId" element={<MemberDetail />} />
+                <Route path="welcome" element={<WelcomePage />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Route>
